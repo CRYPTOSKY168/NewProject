@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bitcoin Dashboard</title>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <style>
+        body { padding-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-center">Bitcoin Dashboard</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-header">Current Price</div>
+                <div class="card-body">
+                    <h2 id="btc-price">$0</h2>
+                    <p class="text-muted">Sample data (offline)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <canvas id="btc-chart" ></canvas>
+        </div>
+    </div>
+</div>
+<script src="assets/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/chart.min.js"></script>
+<script src="assets/js/sample-data.js"></script>
+<script>
+const data = {
+    labels: initialData.labels.slice(),
+    prices: initialData.prices.slice()
+};
+
+const priceEl = document.getElementById('btc-price');
+const ctx = document.getElementById('btc-chart').getContext('2d');
+
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: data.labels,
+        datasets: [{
+            label: 'BTC Price (USD)',
+            data: data.prices,
+            borderColor: '#f2a900',
+            backgroundColor: 'rgba(242,169,0,0.2)',
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: false,
+                ticks: {
+                    callback: function(value){ return '$' + value; }
+                }
+            }
+        }
+    }
+});
+
+function updatePrice() {
+    const last = data.prices[data.prices.length - 1];
+    const change = (Math.random() - 0.5) * 500;
+    const next = Math.round(last + change);
+    data.prices.push(next);
+    data.prices.shift();
+    chart.data.datasets[0].data = data.prices;
+    chart.update();
+    priceEl.textContent = '$' + next.toLocaleString();
+}
+
+updatePrice();
+setInterval(updatePrice, 5000);
+</script>
+</body>
+</html>
